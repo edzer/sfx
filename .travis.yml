@@ -1,0 +1,5 @@
+language: r
+sudo: true
+cache: packages
+apt_packages:
+  - libgdal1-dev
