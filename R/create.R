@@ -1,62 +1,78 @@
-#' @export
-Point = function(x, third = "Z") { # PostGIS default: if not specified, 3rd dim is "Z"
+getClassDim = function(x, d, third = "Z", type) {
+	type = toupper(type)
 	stopifnot(third %in% c("Z", "M"))
-	if (length(x) == 2)
-		cl = "Point"
-	else if (length(x) == 3)
-		cl = paste("Point", third)
-	else if (length(x) == 4)
-		cl = "Point ZM"
-	else
-		stop(paste(length(x), "is an illegal length for a Point"))
-	class(x) = c(cl, "sfi")
-	x
+	if (d == 2)
+		return(type)
+	if (d == 3)
+		return(paste(type, third))
+	if (d == 4)
+		return(paste(type, "ZM"))
+	stop(paste(d, "is an illegal number of columns for a", type))
 }
 
+Pt = function(x, third = "Z", type) {
+	class(x) = c(getClassDim(x, length(x), third, type), "sfi")
+	x
+}
 Mtrx = function(x, third = "Z", type) {
-	stopifnot(third %in% c("Z", "M"))
-	if (ncol(x) == 2)
-		cl = type
-	else if (ncol(x) == 3)
-		cl = paste(type, third)
-	else if (ncol(x) == 4)
-		cl = paste(type, "ZM")
-	else
-		stop(paste(ncol(x), "is an illegal nr of rows for a", type))
-	class(x) = c(cl, "sfi")
+	class(x) = c(getClassDim(x, ncol(x), third, type), "sfi")
 	x
 }
 MtrxSet = function(x, third = "Z", type) {
-	stopifnot(third %in% c("Z", "M"))
 	nc = unique(sapply(x, ncol))
 	if (length(nc) != 1)
 		stop("matrices having unequal number of columns")
-	NotClosed = function(y) head(y, 1) != tail(y, 1)
+	NotClosed = function(y) any(head(y, 1) != tail(y, 1))
 	if (any(sapply(x, NotClosed)))
 		stop("polygons not (all) closed")
-	if (nc == 2)
-		cl = type
-	else if (nc == 3)
-		cl = paste(type, third)
-	else if (nc == 4)
-		cl = paste(type, "ZM")
-	else
-		stop(paste(ncol(x[[1]]), "is an illegal nr of rows for a", type))
-	class(x) = c(cl, "sfi")
+	class(x) = c(getClassDim(x, ncol(x[[1]]), third, type), "sfi")
+	x
+}
+MtrxSetSet = function(x, third = "Z", type) {
+	nc = unique(unlist(sapply(mp, function(x) sapply(x, ncol))))
+	if (length(nc) != 1)
+		stop("matrices having unequal number of columns")
+	NotClosed = function(y) any(head(y, 1) != tail(y, 1))
+	if (any(unlist(sapply(mp, function(x) sapply(x, NotClosed)))))
+		stop("polygons not (all) closed")
+	class(x) = c(getClassDim(x, ncol(x[[1]][[1]]), third, type), "sfi")
+	x
+}
+
+#Dimension = function(x) { # should also return "XY", "XYZ", "XYM", "XYZM"?
+#	if (is.matrix(x))
+#		return(ncol(x))
+#	if (is.numeric(x)) # Point
+#		return(length(x))
+#	# recurse:
+#	return(Dimension(x[[1]]))
+#}
+
+CheckGC = function(x, third = "Z", type = "GeometryCollection") {
+	# TODO
+	# check all dimensions are equal
+	#class(x) = c(getClassDim(x, Dimension(x[[1]]), third, type), "sfi") -> I'M NOT SURE!!
+	class(x) = c(type, "sfi")
 	x
 }
 
 #' @export
-MultiPoint = function(x, third = "Z", ...) Mtrx(x, third, type = "MultiPoint")
+POINT = function(x, third = "Z", ...) Pt(x, third, type = "POINT")
 #' @export
-LineString = function(x, third = "Z", ...) Mtrx(x, third, type = "LineString")
+MULTIPOINT = function(x, third = "Z", ...) Mtrx(x, third, type = "MULTIPOINT")
 #' @export
-Polygon = function(x, third = "Z", ...) MtrxSet(x, third, type = "Polygon")
+LINESTRING = function(x, third = "Z", ...) Mtrx(x, third, type = "LINESTRING")
 #' @export
-MultiLineString = function(x, third = "Z", ...) MtrxSet(x, third, type = "MultiLineString")
+POLYGON = function(x, third = "Z", ...) MtrxSet(x, third, type = "POLYGON")
+#' @export
+MULTILINESTRING = function(x, third = "Z", ...) MtrxSet(x, third, type = "MULTILINESTRING")
+#' @export
+MULTIPOLYGON = function(x, third = "Z", ...) MtrxSetSet(x, third, type = "MULTIPOLYGON")
+#' @export
+GEOMETRYCOLLECTION = function(x, third = "Z", ...) CheckGC(x, third, type = "GEOMETRYCOLLECTION")
 
 # print helper functions
-prnt.Point = function(x, ...) {
+prnt.POINT = function(x, ...) {
 	nr = paste0(x, collapse = " ")
 	paste0(class(x)[1], "(", nr, ")")
 }
@@ -66,20 +82,31 @@ prnt.Matrix = function(x, ...)
 prnt.MatrixList = function(x, ...)
 	paste0("(", paste0(unlist(lapply(x, prnt.Matrix)), collapse = ", "), ")")
 
-prnt.MultiPoint = function(x, ...) paste0(class(x)[1], prnt.Matrix(x, ...))
-prnt.LineString = function(x, ...) paste0(class(x)[1], prnt.Matrix(x, ...))
-prnt.Polygon = function(x, ...) paste0(class(x)[1], prnt.MatrixList(x, ...))
-prnt.MultiLineString = function(x, ...) paste0(class(x)[1], prnt.MatrixList(x, ...))
+prnt.MatrixListList = function(x, ...)
+	paste0("(", paste0(unlist(lapply(x, prnt.MatrixList)), collapse = ", "), ")")
+
+prnt.MULTIPOINT = function(x, ...) paste0(class(x)[1], prnt.Matrix(x, ...))
+prnt.LINESTRING = function(x, ...) paste0(class(x)[1], prnt.Matrix(x, ...))
+prnt.POLYGON = function(x, ...) paste0(class(x)[1], prnt.MatrixList(x, ...))
+prnt.MULTILINESTRING = function(x, ...) paste0(class(x)[1], prnt.MatrixList(x, ...))
+prnt.MULTIPOLYGON = function(x, ...) paste0(class(x)[1], prnt.MatrixListList(x, ...))
+prnt.GEOMETRYCOLLECTION = function(x,...) 
+	paste0(class(x)[1], "(", paste0(sapply(x, print), collapse=", "), ")")
 
 #' @export
-print.sfi = function(x, ...) {
+print.sfi = function(x, ...) { # avoids having to write print methods for 68 classes:
 	fn = switch(class(x)[1], 
-		"Point" = , "Point Z" = , "Point M" = , "Point ZM" = prnt.Point,
-		"MultiPoint" = , "MultiPoint Z" = , "MultiPoint M" = , "MultiPoint ZM" = prnt.MultiPoint,
-		"LineString" = , "LineString Z" = , "LineString M" = , "LineString ZM" = prnt.LineString,
-		"Polygon" = , "Polygon Z" = , "Polygon M" = , "Polygon ZM" = prnt.Polygon,
-		"MultiLineString" = , "MultiLineString Z" = , "MultiLineString M" = , 
-			"MultiLineString ZM" = prnt.MultiLineString,
+		"POINT" = , "POINT Z" = , "POINT M" = , "POINT ZM" = prnt.POINT,
+		"MULTIPOINT" = , "MULTIPOINT Z" = , "MULTIPOINT M" = , "MULTIPOINT ZM" = prnt.MULTIPOINT,
+		"LINESTRING" = , "LINESTRING Z" = , "LINESTRING M" = , "LINESTRING ZM" = prnt.LINESTRING,
+		"POLYGON" = , "POLYGON Z" = , "POLYGON M" = , "POLYGON ZM" = prnt.POLYGON,
+		"MULTILINESTRING" = , "MULTILINESTRING Z" = , "MULTILINESTRING M" = , 
+			"MULTILINESTRING ZM" = prnt.MULTILINESTRING,
+		"MULTIPOLYGON" = , "MULTIPOLYGON Z" = , "MULTIPOLYGON M" = , 
+			"MULTIPOLYGON ZM" = prnt.MULTIPOLYGON,
+		"GEOMETRYCOLLECTION" = , "GEOMETRYCOLLECTION Z" = , "GEOMETRYCOLLECTION M" = , 
+			"GEOMETRYCOLLECTION ZM" = prnt.GEOMETRYCOLLECTION,
+		stop(paste("no print method available for object of class", class(x)[1]))
 	)
 	fn(x, ...)
 }
