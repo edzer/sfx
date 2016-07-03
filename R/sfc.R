@@ -1,23 +1,3 @@
-# create sfc: a list column with simple feature items (sfi objects)
-
-#' @export
-sfc = function(lst) {
-	stopifnot(is.list(lst))
-	type = checkTypes(lst)
-	class(lst) = "sfc"
-	attr(lst, "bbox") = bbox(lst)
-	lst
-}
-
-checkTypes = function(lst) { # breaks on errors, or returns the unique class
-	sfi = sapply(lst, function(x) inherits(x, "sfi"))
-	if (any(!sfi))
-		stop(paste("list item", which(i)[1], "is not of class sfi"))
-	cls = unique(sapply(lst, function(x) class(x)[1]))
-	if (length(cls) > 1)
-		stop("multiple simple feature types not allowed in a simple feature list column")
-	cls
-}
 
 bbox.Mtrx = function(x) {
 	mn = apply(x, 2, min)
@@ -58,16 +38,16 @@ bbox.GEOMETRYCOLLECTION = function(x) {
 }
 
 #' @export
-bbox.sfc = function(lst) {
-	switch(attr(lst, "type"),
-		"POINT" = , "POINT Z" = , "POINT M" = , "POINT ZM" = bbox.Mtrx(do.call(rbind, lst)),
-		"MULTIPOINT" = , "MULTIPOINT Z" = , "MULTIPOINT M" = , "MULTIPOINT ZM" = bbox.MtrxSet(lst),
-		"LINESTRING" = , "LINESTRING Z" = , "LINESTRING M" = , "LINESTRING ZM" = bbox.MtrxSet(lst),
-		"POLYGON" = , "POLYGON Z" = , "POLYGON M" = , "POLYGON ZM" = bbox.MtrxSetSet(lst),
+bbox.sfc = function(x) {
+	switch(attr(x, "type"),
+		"POINT" = , "POINT Z" = , "POINT M" = , "POINT ZM" = bbox.Mtrx(do.call(rbind, x)),
+		"MULTIPOINT" = , "MULTIPOINT Z" = , "MULTIPOINT M" = , "MULTIPOINT ZM" = bbox.MtrxSet(x),
+		"LINESTRING" = , "LINESTRING Z" = , "LINESTRING M" = , "LINESTRING ZM" = bbox.MtrxSet(x),
+		"POLYGON" = , "POLYGON Z" = , "POLYGON M" = , "POLYGON ZM" = bbox.MtrxSetSet(x),
 		"MULTILINESTRING" = , "MULTILINESTRING Z" = , "MULTILINESTRING M" = , 
-			"MULTILINESTRING ZM" = bbox.MtrxSetSet(lst),
+			"MULTILINESTRING ZM" = bbox.MtrxSetSet(x),
 		"MULTIPOLYGON" = , "MULTIPOLYGON Z" = , "MULTIPOLYGON M" = , 
-			"MULTIPOLYGON ZM" = bbox.MtrxSetSetSet(lst),
+			"MULTIPOLYGON ZM" = bbox.MtrxSetSetSet(x),
 		"GEOMETRYCOLLECTION" = , "GEOMETRYCOLLECTION Z" = , "GEOMETRYCOLLECTION M" = , 
 			"GEOMETRYCOLLECTION ZM" = { 
 				s = sapply(x, bbox)

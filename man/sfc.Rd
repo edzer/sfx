@@ -4,7 +4,7 @@
 \alias{sfc}
 \title{verify simple feature}
 \usage{
-sfc(lst)
+sfc(lst, epsg = -1, proj4string = as.character(NA))
 }
 \arguments{
 \item{lst}{list with simple feature objects}
@@ -17,11 +17,9 @@ sfc(lst)
 verifies simple feature list column's contents, and sets class
 }
 \examples{
-pt1 = c(0,1)
-class(pt1) = "Point"
-pt2 = c(1,1)
-class(pt2) = "Point"
+pt1 = POINT(c(0,1))
+pt2 = POINT(c(1,1))
 (sfc = sfc(list(pt1, pt2)))
-(d = data.frame(a = 1:2, geom = I(sfc)))
+d = data.frame(a = 1:2)
 }
 

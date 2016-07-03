@@ -29,11 +29,11 @@ MtrxSet = function(x, third = "Z", type) {
 	x
 }
 MtrxSetSet = function(x, third = "Z", type) {
-	nc = unique(unlist(sapply(mp, function(x) sapply(x, ncol))))
+	nc = unique(unlist(sapply(x, function(y) sapply(y, ncol))))
 	if (length(nc) != 1)
 		stop("matrices having unequal number of columns")
 	NotClosed = function(y) any(head(y, 1) != tail(y, 1))
-	if (any(unlist(sapply(mp, function(x) sapply(x, NotClosed)))))
+	if (any(unlist(sapply(x, function(y) sapply(y, NotClosed)))))
 		stop("polygons not (all) closed")
 	class(x) = c(getClassDim(x, ncol(x[[1]][[1]]), third, type), "sfi")
 	x
