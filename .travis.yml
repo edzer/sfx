@@ -22,7 +22,7 @@ before_install:
   - ./configure --prefix=/usr
   - make
   - sudo make install
-  - cd /home/travis/build/edzer/spacetime
+  - cd /home/travis/build/edzer/sf
 
 install:
   - ./pkg-build.sh install_deps
