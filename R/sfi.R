@@ -56,18 +56,68 @@ CheckGC = function(x, third = "Z", type = "GeometryCollection") {
 	x
 }
 
+#' Create a point simple feature from a numeric vector
+#' 
+#' Create a point simple feature from a numeric vector
+#' @param x numeric vector of length 2, 3 or 4
+#' @param third character, indicating what a 3-dimensional point refers to ("Z" or "M")
+#' @param ... ignored
+#'
 #' @export
 POINT = function(x, third = "Z", ...) Pt(x, third, type = "POINT")
+#' Create a multipoint simple feature from a numeric matrix
+#' 
+#' Create a multipoint simple feature from a numeric matrix
+#' @param x numeric matrix with 2, 3 or 4 columns
+#' @param third character, indicating what the third dimension refers to ("Z" or "M")
+#' @param ... ignored
+#'
 #' @export
 MULTIPOINT = function(x, third = "Z", ...) Mtrx(x, third, type = "MULTIPOINT")
+#' Create a linestring simple feature from a numeric matrix
+#' 
+#' Create a linestring simple feature from a numeric matrix
+#' @param x numeric matrix with 2, 3 or 4 columns
+#' @param third character, indicating what the third dimension refers to ("Z" or "M")
+#' @param ... ignored
+#'
 #' @export
 LINESTRING = function(x, third = "Z", ...) Mtrx(x, third, type = "LINESTRING")
+#' Create a polygon simple feature from a list with coordinate matrices
+#' 
+#' Create a polygon simple feature from a list with coordinate matrices
+#' @param x list with numeric matrices with 2, 3 or 4 columns
+#' @param third character, indicating what the third dimension refers to ("Z" or "M")
+#' @param ... ignored
+#'
 #' @export
 POLYGON = function(x, third = "Z", ...) MtrxSet(x, third, type = "POLYGON")
+#' Create a multilinestring simple feature from a list with coordinate matrices
+#' 
+#' Create a multilinestring simple feature from a list with coordinate matrices
+#' @param x list with numeric matrices with 2, 3 or 4 columns
+#' @param third character, indicating what the third dimension refers to ("Z" or "M")
+#' @param ... ignored
+#'
 #' @export
 MULTILINESTRING = function(x, third = "Z", ...) MtrxSet(x, third, type = "MULTILINESTRING")
+#' Create a multipolygon simple feature from a list of lists with coordinate matrices
+#' 
+#' Create a multipolygon simple feature from a list of lists with coordinate matrices
+#' @param x list with numeric matrices with 2, 3 or 4 columns
+#' @param third character, indicating what the third dimension refers to ("Z" or "M")
+#' @param ... ignored
+#'
 #' @export
 MULTIPOLYGON = function(x, third = "Z", ...) MtrxSetSet(x, third, type = "MULTIPOLYGON")
+#' Create a geometrycollection from a list other simple feature items
+#'
+#' Create a geometrycollection from a list other simple feature items
+#'
+#' @param x list with numeric matrices with 2, 3 or 4 columns
+#' @param third character, indicating what the third dimension refers to ("Z" or "M")
+#' @param ... ignored
+#'
 #' @export
 GEOMETRYCOLLECTION = function(x, third = "Z", ...) CheckGC(x, third, type = "GEOMETRYCOLLECTION")
 

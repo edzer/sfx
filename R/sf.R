@@ -45,8 +45,16 @@ checkTypes = function(lst) { # breaks on errors, or returns the unique class
     x
 }
 
+#' summarize simple feature column
+#'
+#' summarize simple feature column
+#' @param object object of class \code{sfc}
+#' @param ... ignored
+#' @param maxsum maximum number of classes to summarize the simple feature column to
+#' @param maxp4s maximum number of characters to print from the PROJ.4 string
+#' @method summary sfc
 #' @export
-summary.sf = function(object, ..., maxsum = 7, maxp4s = 10) {
+summary.sfc = function(object, ..., maxsum = 7, maxp4s = 10) {
 	u = factor(sapply(object, class))
     epsg = paste0("epsg:", attr(object, "epsg"))
 	levels(u) = c(levels(u), epsg)
