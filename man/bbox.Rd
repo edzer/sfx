@@ -4,10 +4,10 @@
 \alias{bbox}
 \title{Return bounding of a simple feature or simple feature set}
 \usage{
-bbox(x)
+bbox(obj)
 }
 \arguments{
-\item{x}{object to compute the bounding box from}
+\item{obj}{object to compute the bounding box from}
 }
 \description{
 Return bounding of a simple feature or simple feature set
